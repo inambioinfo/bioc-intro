@@ -27,6 +27,7 @@ BiocStyle::latex()
 \title{Introduction to Bioconductor and {\tt R} refresher}
 
 \author{Mark Dunning}
+\date{Last modified: \today}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
