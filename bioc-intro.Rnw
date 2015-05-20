@@ -44,7 +44,7 @@ Like other software programs, R has a concept of a \textit{working directory}. T
 
 There are two main ways of changing your working directory in RStudio. The first is to navigate the menu system. {\tt Session} $\rightarrow$ {\tt Set working directory} $\rightarrow$ {\tt Choose Directory}.
 
-Set your directory now to {\tt bioc-intro}.
+Set your directory now to {\tt nki}.
 
 \subsection{Reading data into R}
 
@@ -65,7 +65,7 @@ The \Rfunction{read.} family of functions can be used to read tabular data into 
 \exercise Read the breast cancer expression values into R. What type of object is created? How can you find out the dimensions of this object? How would you read the data differently if the file was comma-separated?
 
 <<echo=FALSE>>=
-myfile <- "data/NKI295.exprs.txt"
+myfile <- "nki/NKI295.exprs.txt"
 @
 
 \hint We can use the \Rfunction{file.exists} function to check that the path that we have specified is valid. If the function returns {\tt FALSE} then we will not be able to use this path as an argument to a function that reads a table.
@@ -123,7 +123,7 @@ evals[1:10,]
 evals[1:5,1:10]
 @
 
-So far we have created subsets of our data matrix using consecutive rows via the {\tt :} shortcut. We can in fact use any method to generate the rows indices. 
+So far we have created subsets of our data matrix using consecutive rows via the {\tt :} shortcut. We can in fact use a number of different methods to generate the rows indices. 
 
 \exercise Make sure that you understand the following subset operations
 <<>>=
@@ -254,20 +254,20 @@ We are dealing with a real-life dataset involving breast cancer patients, and pa
 \exercise Now read the clinical annotations for the dataset, which are found in the file {\tt NKI295.pdata.txt} What are the dimensions of the resulting object and how do they relate to the expression values?
 
 <<>>=
-clinical <- read.delim("data//NKI295.pdata.txt")
+clinical <- read.delim("NKI295.pdata.txt")
 dim(clinical)
 head(clinical)
 @
 
-You should find that the number of rows in the clinical data is the same as the number of columns in the expression data; 295. Moreover, they ordered in the same manner. This means we can easily associate the expression values for a particular sample with it's clinical parameters, and vice-versa. As we have created a data frame to store the clinical data, we can both numerical and categorical variables in the same object.
+You should find that the number of rows in the clinical data is the same as the number of columns in the expression data; 295. Moreover, they ordered in the same manner. This means we can easily associate the expression values for a particular sample with it's clinical parameters, and vice-versa. As we have created a data frame to store the clinical data, we can have both numerical and categorical variables in the same object.
 
 
 In order to commence an analysis of the data, we also need to retrieve annotation for the rows in the expression matrix. i.e. the genes measured on the array.
 
-\exercise Read the feature annotation for the dataset. Again, what are the dimensions are how to they correspond to the expression values?
+\exercise Read the feature annotation for the dataset, which can be found in the file {\tt NKI295.fdata.txt}. Again, what are the dimensions are how to they correspond to the expression values?
 
 <<>>=
-features <- read.delim("data//NKI295.fdata.txt")
+features <- read.delim("NKI295.fdata.txt")
 head(features)
 @
 
@@ -277,17 +277,20 @@ You should find that the number of rows in the feature annotation is the same as
 
 \subsection{Creating an ExpressionSet}
 
-The {\tt ExpressionSet} is the standard Bioconductor way of storing microarray data and is ubiquitous throughout the software that is available on the Bioconductor project. The re-use of object-types in this manner is encouraged and helps the user to begin to use new software.
+The {\tt ExpressionSet} is the standard Bioconductor way of storing microarray data and is ubiquitous throughout the software that is available through the Bioconductor project. The re-use of object-types in this manner is encouraged and helps the user to begin to use new software.
 
 \exercise Load the Biobase package and create an ExpressionSet representation of the data using the \Rfunction{readExpressionSet} function. If you didn't have Biobase installed, how would you install it? How can you find out what \Rfunction{readExpressionSet} does and the arguments it accepts?
 
 <<>>=
 library(Biobase)
-eset <- readExpressionSet("data//NKI295.exprs.txt", "data//NKI295.pdata.txt")
+eset <- readExpressionSet("NKI295.exprs.txt", "NKI295.pdata.txt")
 ?readExpressionSet
 @
 
-Show a summary of the eset object and verify that it has the correct number of samples and features. 
+
+When you type the name of a variable in R, it will print the contents of that variable to the screen. Unfortunately, this can be quite painful in the case of large data frames, like those that we were dealing with in the previous section. Moreover, more complicated classes like lists and environments can have a structure that is difficult for the user to interpret. To address this, Bioconductor have re-written the printing behaviour for the {\tt ExpressionSet} class so that only a portion of the data is written to the screen. A summarised view of the object is displayed, showing how many features and samples are present, along with a snapshot of the metadata.
+
+\exercise Show a summary of the eset object and verify that it has the correct number of samples and features. 
 
 <<>>=
 eset
@@ -296,7 +299,7 @@ eset
 
 \subsection{Accessing data from the ExpressionSet}
 
-The ExpressionSet is a complex object type.....Fortunately, few people actually have to fully-understand how it is implemented. Instead the authors provide a set of 'convenience functions', whose purpose is to access the data in the object in a painless manner. 
+The {\tt ExpressionSet} is a complex object type. Fortunately, you do not have to fully-understand how it is implemented in order to access and manipulate the data stored in such an object. Instead the authors provide a set of 'convenience functions', whose purpose is to access the data in the object in a painless manner. 
 
 \exercise Use the \Rfunction{exprs} and \Rfunction{pData} function to extract the expression values and sample information from the example dataset.
 
@@ -392,7 +395,7 @@ plot(density(mygene))
 
 \section{Basic data analysis}
 
-We will now bring together the expression values, sample annotation and gene annotation to perform a basic analysis. From the literature we know to expect a huge difference in ESR1 expression between ER negative and positive samples. So as a sanity check, it would be useful to visualise the gene expression levels of ESR1 between the two groups of interest. A boxplot is ideal for this task. To construct a boxplot, we either need to supply a data frame to the \Rfunction{boxplot} function, or specify a response and explantory variable. In our case, we want the response to be the gene expression level of a particular gene and the explanatory variable to be the ER status of each sample. The 'tilde' notation can be used to create a formula in the form \Rfunction{y \~{} x} as input to the \Rfunction{boxplot} function.
+We will now bring together the expression values, sample annotation and gene annotation to perform a basic analysis. From the literature we know to expect a huge difference in ESR1 expression between ER negative and positive samples. So as a sanity check, it would be useful to visualise the gene expression levels of ESR1 between the two groups of interest. A boxplot is ideal for this task. To construct a boxplot, we either need to supply a data frame to the \Rfunction{boxplot} function, or specify a response and explanatory variable. In our case, we want the response to be the gene expression level of a particular gene and the explanatory variable to be the ER status of each sample. The 'tilde' notation can be used to create a formula in the form \Rfunction{y \~{} x} as input to the \Rfunction{boxplot} function.
 
 \exercise Make a boxplot of ESR1 expression in ER positive and ER negative groups. Do you notice a trend? Use a t-test to test if the difference is significant.
 
