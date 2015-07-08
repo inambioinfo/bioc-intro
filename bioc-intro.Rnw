@@ -49,7 +49,7 @@ Set your directory now to {\tt nki}.
 
 \subsection{Reading data into R}
 
-We are going to read some expression data into R. In order to do this, we first need to locate the file on our hard drive and make a note of the path to the file.
+We are going to read some Microarray gene expression data into R. In order to do this, we first need to locate the file on our hard drive and make a note of the path to the file.
 
 A useful trick here is to use the \Rfunction{file.choose} function. This will show a dialogue box allowing you to select the location of the file that you want to read, and save the location as a \textit{variable} (Recall that {\tt <-} is the symbol for creating a variable in R).
 
@@ -79,7 +79,7 @@ dim(expression)
 head(expression)
 @
 
-The object we have created is a \textit{data frame} representation of the data in the file with 24481 rows and 296 columns. We can now try the square bracket notation "[" to subset the rows and columns of the object.
+The object we have created is a \textit{data frame} representation of the data in the file with 24481 rows (genes) and 296 columns (samples). We can now try the square bracket notation "[" to subset the rows and columns of the object.
 
 \exercise Print out i) the first five rows and first 10 columns ii) the first 10 rows and all columns
 
