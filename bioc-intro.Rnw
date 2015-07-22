@@ -45,7 +45,7 @@ Like other software programs, R has a concept of a \textit{working directory}. T
 
 There are two main ways of changing your working directory in RStudio. The first is to navigate the menu system. {\tt Session} $\rightarrow$ {\tt Set working directory} $\rightarrow$ {\tt Choose Directory}.
 
-Set your directory now to {\tt nki}.
+Set your directory now to {\tt Day1/nki}.
 
 \subsection{Reading data into R}
 
