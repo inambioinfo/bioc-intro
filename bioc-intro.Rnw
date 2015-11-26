@@ -53,7 +53,7 @@ We are going to read some Microarray gene expression data into R. In order to do
 
 A useful trick here is to use the \Rfunction{file.choose} function. This will show a dialogue box allowing you to select the location of the file that you want to read, and save the location as a \textit{variable} (Recall that {\tt <-} is the symbol for creating a variable in R).
 
-\exercise Use the \Rfunction{file.choose} function to locate the file {\tt NKI295.exprs.txt} and save the location as a variable.
+\exercise Use the \Rfunction{file.choose} function to locate the file {\tt NKI.exprs.txt} and save the location as a variable.
 
 <<eval=FALSE>>=
 myfile <- file.choose()
@@ -61,12 +61,12 @@ myfile
 @
 
 
-The \Rfunction{read.} family of functions can be used to read tabular data into R. For instance, \Rfunction{read.delim} and \Rfunction{read.csv} are used to read \textit{tab} and \textit{comma} separated files respectively and are more general versions of the function \Rfunction{read.table}. Every aspect of reading a file can be customised; from the character used to separate the columns, whether to use column headings or not, or which character is used to specify a missing value. All these options (and many more) are detailed in the help page for \Rfunction{read.table}. To keep our example simple, we use the fact that our example file is tab-delimited. To read the file {\tt NKI295.exprs.txt} into R, we just need to use the file location that we stored in the previous exercise as an argument to \Rfunction{read.delim}
+The \Rfunction{read.} family of functions can be used to read tabular data into R. For instance, \Rfunction{read.delim} and \Rfunction{read.csv} are used to read \textit{tab} and \textit{comma} separated files respectively and are more general versions of the function \Rfunction{read.table}. Every aspect of reading a file can be customised; from the character used to separate the columns, whether to use column headings or not, or which character is used to specify a missing value. All these options (and many more) are detailed in the help page for \Rfunction{read.table}. To keep our example simple, we use the fact that our example file is tab-delimited. To read the file {\tt NKI.exprs.txt} into R, we just need to use the file location that we stored in the previous exercise as an argument to \Rfunction{read.delim}
 
 \exercise Read the breast cancer expression values into R. What type of object is created? How can you find out the dimensions of this object? How would you read the data differently if the file was comma-separated?
 
 <<echo=FALSE>>=
-myfile <- "nki/NKI295.exprs.txt"
+myfile <- "nki/NKI.exprs.txt"
 @
 
 \hint We can use the \Rfunction{file.exists} function to check that the path that we have specified is valid. If the function returns {\tt FALSE} then we will not be able to use this path as an argument to a function that reads a table.
@@ -79,7 +79,7 @@ dim(expression)
 head(expression)
 @
 
-The object we have created is a \textit{data frame} representation of the data in the file with 24481 rows (genes) and 296 columns (samples). We can now try the square bracket notation "[" to subset the rows and columns of the object.
+The object we have created is a \textit{data frame} representation of the data in the file with 24481 rows (genes) and 337 columns (samples). We can now try the square bracket notation "[" to subset the rows and columns of the object.
 
 \exercise Print out i) the first five rows and first 10 columns ii) the first 10 rows and all columns
 
@@ -101,29 +101,6 @@ dim(expression)
 subset <- expression[1:10,]
 subset
 @
-
-
-You will see that the first column of the data frame gives the probe IDs that were used on the microarray. If we proceed to do any analysis or computation on the object, then including this column could be problematic as it could be treated as a numeric quantity. Using the {\tt [ ]} syntax, we can remove rows or column by preceeding the column index with a minus sign {\tt -}. We can assign names to the \textit{rows} of the data frame should we wish to keep track of what genes are being referred to in each row.
-
-
-\exercise Create a new data frame that i) contains just expression values and ii) has probe IDs as the rownames.
-
-
-<<>>=
-rownames(expression) <- expression[,1]
-evals <- expression[,-1]
-@
-
-Each row in this new matrix contains the expression values for a particular (arbitrary) gene for each patient in the study. It is worth noting that we could have used the \Rcode{row.names} argument to \Rfunction{read.delim} to pick a particular column in the original text file to be used as row names. This avoids having to rename the rownames after having read the file and creating a new copy of the data frame without the names.
-
-<<>>=
-evals <- read.delim(myfile,row.names=1,as.is=TRUE)
-dim(evals)
-head(evals)
-evals[1:10,]
-evals[1:5,1:10]
-@
-
 So far we have created subsets of our data matrix using consecutive rows via the {\tt :} shortcut. We can in fact use a number of different methods to generate the rows indices. 
 
 \exercise Make sure that you understand the following subset operations
@@ -142,16 +119,16 @@ We will now explore some of the many ways that we can interrogate our gene expre
 \exercise Convert the data frame to a matrix and print the gene expression values for the gene in the first row
 
 <<>>=
-evals <- as.matrix(evals)
+evals <- as.matrix(expression)
 evals[1,]
 @
 
 As it was developed primarily as a statistical language, R includes many operations that can be performed on numerical data. It can produce numerical summaries of data that you should be familiar with (e.g. mean, median, standard deviation etc) as well as fit complex models to data. Initially we will just summarise our gene expression values using basic functions. 
 
-\exercise Use the \Rfunction{mean} and \Rfunction{summary} functions on the expression values for the first gene
+\exercise Use the \Rfunction{mean} and \Rfunction{summary} functions on the expression values for the first gene. Why do we need to specify the {\tt na.rm} argument?
 
 <<>>=
-mean(evals[1,])
+mean(evals[1,],na.rm=TRUE)
 summary(evals[1,])
 @
 
@@ -185,7 +162,7 @@ plot(evals[1,],col="steelblue")
 
 Here we specify the same colour for each point. In fact, we could specify a unique color for each point by creating a vector the same length as the number of points to be plotted. In general, the colour vector will be \textit{recycled}.
 
-\exercise Use the \Rfunction{rainbow} function to create a vector of length 295, and use this as an argument to change the colours in the scatter plot
+\exercise Use the \Rfunction{rainbow} function to create a vector whose length is the same as the number of samples in the dataset. Use this as an argument to change the colours in the scatter plot
 <<>>=
 rainbow(n=ncol(evals))
 plot(evals[1,],col=rainbow(n=ncol(evals)))
@@ -196,14 +173,12 @@ Another modification is to use a different '\textbf{p}lotting \textbf{ch}aracter
 
 \exercise Repeat the previous plot, but use filled circles to plot the points 
 <<>>=
-rainbow(n=ncol(evals))
 plot(evals[1,],col=rainbow(n=ncol(evals)),pch=16)
 @
 
 As with specifying colours, we are not restricted to have the same plotting character for all points. 
 
 <<>>=
-rainbow(n=ncol(evals))
 plot(evals[1,],col=rainbow(n=ncol(evals)),pch=1:16)
 @
 
@@ -216,21 +191,21 @@ plot(evals[1,],col="steelblue",pch=16,xlab="Patient",
 
 After a plot has been created, we can add extra lines, points and text to it. For example, we might want to highlight particular observations of interest. The \Rfunction{which} function can be used in conjunction with a logical test (i.e. one that will give {\tt TRUE} or {\tt FALSE}) to identify the indices of observations that satisfy particular criteria.
 
-\exercise Use a \Rfunction{which} statement to find out the indices of samples that have expression greater than 4 for the first gene.
+\exercise Use a \Rfunction{which} statement to find out the indices of samples that have expression greater than 1.5 for the first gene.
 
 <<>>=
-which(evals[1,] > 4)
+which(evals[1,] > 1.5)
 @
 
-We can use the following lines of code to highlight samples with expression higher than 4, or lower than -4. \Rfunction{points} and \Rfunction{abline} are used to add extra details to the initial plot.
+We can use the following lines of code to highlight samples with expression higher than 1.5, or lower than -1.5. \Rfunction{points} and \Rfunction{abline} are used to add extra details to the initial plot.
 
 \exercise Make sure that you can follow the lines of code
 
 <<>>=
 values <- evals[1,]
 plot(values,col="steelblue",pch=16)
-outl <- which(abs(values) > 4)
-abline(h=c(-4,4))
+outl <- which(abs(values) > 1.5)
+abline(h=c(-1.5,1.5))
 points(outl,values[outl],col="red",pch=16)
 
 @
@@ -238,7 +213,7 @@ points(outl,values[outl],col="red",pch=16)
 A more robust version of the code would be to define the limit as a variable.
 
 <<>>=
-limit <- 4
+limit <- 1.5
 values <- evals[1,]
 plot(values,col="steelblue",pch=16)
 outl <- which(abs(values) > limit)
@@ -252,23 +227,23 @@ points(outl,values[outl],col="red",pch=16)
 
 We are dealing with a real-life dataset involving breast cancer patients, and patients in the study have various clinical or phenotypic characteristics that we may wish to incorporate into the analysis.
 
-\exercise Now read the clinical annotations for the dataset, which are found in the file {\tt NKI295.pdata.txt} What are the dimensions of the resulting object and how do they relate to the expression values?
+\exercise Now read the clinical annotations for the dataset, which are found in the file {\tt NKI.pData.txt} What are the dimensions of the resulting object and how do they relate to the expression values?
 
 <<>>=
-clinical <- read.delim("NKI295.pdata.txt")
+clinical <- read.delim("NKI.pData.txt")
 dim(clinical)
 head(clinical)
 @
 
-You should find that the number of rows in the clinical data is the same as the number of columns in the expression data; 295. Moreover, they ordered in the same manner. This means we can easily associate the expression values for a particular sample with it's clinical parameters, and vice-versa. As we have created a data frame to store the clinical data, we can have both numerical and categorical variables in the same object.
+You should find that the number of rows in the clinical data is the same as the number of columns in the expression data; 337 Moreover, they ordered in the same manner. This means we can easily associate the expression values for a particular sample with it's clinical parameters, and vice-versa. As we have created a data frame to store the clinical data, we can have both numerical and categorical variables in the same object.
 
 
 In order to commence an analysis of the data, we also need to retrieve annotation for the rows in the expression matrix. i.e. the genes measured on the array.
 
-\exercise Read the feature annotation for the dataset, which can be found in the file {\tt NKI295.fdata.txt}. Again, what are the dimensions are how to they correspond to the expression values?
+\exercise Read the feature annotation for the dataset, which can be found in the file {\tt NKI.fData.txt}. Again, what are the dimensions are how to they correspond to the expression values?
 
 <<>>=
-features <- read.delim("NKI295.fdata.txt")
+features <- read.delim("NKI.fData.txt")
 head(features)
 @
 
@@ -284,7 +259,7 @@ The {\tt ExpressionSet} is the standard Bioconductor way of storing microarray d
 
 <<>>=
 library(Biobase)
-eset <- readExpressionSet("NKI295.exprs.txt", "NKI295.pdata.txt")
+eset <- readExpressionSet("NKI.exprs.txt", "NKI.pData.txt")
 ?readExpressionSet
 @
 
@@ -356,7 +331,7 @@ The process of identifying clinically-relevant breast cancer subtypes has been i
 
 
 <<>>=
-table(sampleMat$ER)
+table(sampleMat$er)
 @
 
 \hint We are fortunate here to be using a well-curated dataset and there are just two values present in the ER status column. Other datasets might not be as tidy and may require curation. For example, R would treat 'Negative', 'negative', 'NEGATIVE' as different values when performing calculations.
@@ -364,8 +339,8 @@ table(sampleMat$ER)
 \exercise Create an ExpressionSet that contains just ER negative patients.
 
 <<>>=
-sampleMat$ER == "Negative"
-erNegSet <- eset[,sampleMat$ER == "Negative"]
+sampleMat$er == 0
+erNegSet <- eset[,sampleMat$er == 0]
 @
 
 
@@ -383,13 +358,13 @@ Consequently, we can look up the rows in the annotation matrix that satisfy cert
 
 <<>>=
 head(features)
-match("ESR1", features[,2])
-features[match("ESR1", features[,2]),]
+match("ESR1", features$HUGO.gene.symbol)
+features[match("ESR1", features$HUGO.gene.symbol),]
 
-myrow <- match("ESR1", features[,2])
+myrow <- match("ESR1", features$HUGO.gene.symbol)
 mygene <- exprs(eset)[myrow,]
 mygene
-plot(density(mygene))
+plot(hist(mygene))
 @
 
 \hint However, note that the default behaviour of \Rfunction{match} is to return the first match only. For situations where you expect multiple matches use can use \Rfunction{grep}.
@@ -404,49 +379,43 @@ We will now bring together the expression values, sample annotation and gene ann
 <<>>=
 head(pData(eset))
 
-ERStatus <- pData(eset)$ER
+ERStatus <- pData(eset)$er
 
 boxplot(mygene ~ ERStatus)
 
 t.test(mygene ~ ERStatus)
 @
 
+\exercise Calculate the mean of each gene in both the ER Negative and Positive groups. Then identify the 10 genes which have the largest absolute difference between the two groups. Retrieve the annotation for these genes.
 
-The genefilter package contains a convenient way to calculate t-statistics for many genes simultaneously. We are going to use these statistics to find out what genes show the biggest difference between ER positive and negative samples.
-
-\exercise Use the \Rfunction{rowttests} function to calculate t-statistics for each gene, and then order the output.
-
-<<>>=
-library(genefilter)
-tstats <- rowttests(exprs(eset), as.factor(ERStatus))
-head(tstats)
-
-ordt <- order(abs(tstats),decreasing=TRUE)
-@
-
-\exercise Find out the indices of top 10 genes. What genes do they correspond to?
+\hint The \Rfunction{rowMeans} function in base R is useful to calculate the average of each row in a matrix, or data frame. You should already have the ER negative samples in an object in a previous exercise, and need to do similar for ER Positives
 
 <<>>=
-topGenes <- ordt[1:10]
-features[topGenes,]
+negMean <- rowMeans(exprs(erNegSet),na.rm=TRUE)
+
+erPosSet <- erNegSet <- eset[,sampleMat$er == 1]
+
+posMean <- rowMeans(exprs(erPosSet),na.rm=TRUE)
+
+Diff <- posMean - negMean
+
+topDiff <- order(abs(Diff),decreasing = TRUE)[1:10]
+
+features[topDiff,]
 @
 
-
-
-\exercise Use a {\tt for} loop to make boxplots of the top 10 genes and save to a pdf file. Put the Symbol of each gene in the plot title.
+\exercise: Use a for loop to make boxplots of the top 10 genes and save to a pdf file. Put the Symbol
+of each gene in the plot title.
 
 <<>>=
 pdf("TopGenes.pdf")
-
 for(i in 1:10){
-  rowind <- ordt[i]
-  geneName <- features[rowind,2]
-  boxplot(exprs(eset)[rowind,]~ERStatus,main=geneName)
+rowind <- topDiff[i]
+geneName <- features$HUGO.gene.symbol[rowind]
+boxplot(exprs(eset)[rowind,]~ERStatus,main=geneName)
 }
 dev.off()
-
 @
-
 
 
 \end{document}
