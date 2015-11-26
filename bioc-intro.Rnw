@@ -393,7 +393,7 @@ t.test(mygene ~ ERStatus)
 <<>>=
 negMean <- rowMeans(exprs(erNegSet),na.rm=TRUE)
 
-erPosSet <- erNegSet <- eset[,sampleMat$er == 1]
+erPosSet <- eset[,sampleMat$er == 1]
 
 posMean <- rowMeans(exprs(erPosSet),na.rm=TRUE)
 
